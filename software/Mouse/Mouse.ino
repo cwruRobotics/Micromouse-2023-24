@@ -358,11 +358,12 @@ int moveForward(int number) {
 
       // Update current distance
       // 4560 ticks per revolution (380:1 gearbox * 12 ticks per rev normally)
+      int ticksPerRevolution = 1750; // initially 4560
       // num revolutions * pi * diameter (Zach says 60mm)
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
       // ((Num ticks of both wheels / 2) / num ticks per revolution) * mm per revolution  
-      currentDistance = (leftRevs + rightRevs) / 2.0 / 4560 * PI * 60.0;
+      currentDistance = (leftRevs + rightRevs) / 2.0 / ticksPerRevolution * PI * 60.0;
     }
     logf("Current: %lf\n", currentDistance);
     logf("Goal: %lf\n", goalDistance);
@@ -384,7 +385,7 @@ int moveForward(int number) {
       setMotor(LEFT_MOTOR, 0);
       setMotor(RIGHT_MOTOR, 0);
       logf("Stopped. Ultrasonic: %d, %d, %lf\n", !ultrasonic_errored, ultrasonic < ULTRASONIC_FRONT, ultrasonic);
-      break;
+      return 0;
     }
 
     // How far away from the center we are
@@ -452,7 +453,6 @@ int moveForward(int number) {
     setMotor(LEFT_MOTOR, velocityLeft);
     setMotor(RIGHT_MOTOR, velocityRight);
   }
-  return 0;
 }
 
 /* ---- SETUP ---- */
