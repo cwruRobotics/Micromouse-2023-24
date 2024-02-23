@@ -55,8 +55,8 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * 380 * 12;
 // When centered, there should be 60mm in front of the ultrasonic
 #define ULTRASONIC_FRONT 60
 
-// Squares are 10in by 10in, but we work in mm. 10in = 254mm
-#define SQUARE_SIZE 254
+// Squares are 10in by 10in, but we work in cm. 10in = 25.4cm
+#define SQUARE_SIZE 25.4
 
 /* ---- User Variables ---- */
 
@@ -276,30 +276,31 @@ void movingTurn(double angle, turning_direction_t dir){
   leftEncoder.write(0);
   rightEncoder.write(0);
 
-  double ratio =  (SQUARE_SIZE/10 + wheelSeparation)/(SQUARE_SIZE/10 - wheelSeparation);
-  double max = 50;
-  int target = 1800;
+  
+  double leftTurnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * 190 * 10.5;
+  double rightTurnRatio = (SQUARE_SIZE - wheelSeparation) / 2.0 / wheelRadius / 360 * 190 * 9;
 
+  double target;
 
-  double FAST_SPEED = max*ratio/(ratio + 1);
-  double SLOW_SPEED = max*1/(ratio + 1);
+  double FAST_SPEED = 45.125 * (SQUARE_SIZE + wheelSeparation) / wheelSeparation * 0.35;
+  double SLOW_SPEED = 45.125 * (SQUARE_SIZE - wheelSeparation) / wheelSeparation * 0.35;
   
   if(dir == LEFT){
     turnEncoder = &rightEncoder;
-    otherTurnEncoder = &leftEncoder;
+    target = angle * leftTurnRatio;
+    // otherTurnEncoder = &leftEncoder;
     setMotor(RIGHT_MOTOR, FAST_SPEED);
     setMotor(LEFT_MOTOR, SLOW_SPEED);
   }
   else{
-    turnEncoder = &leftEncoder;
-    otherTurnEncoder = &rightEncoder;
+    turnEncoder = &rightEncoder;
+    target = angle * rightTurnRatio;
+    // otherTurnEncoder = &rightEncoder;
     setMotor(RIGHT_MOTOR, SLOW_SPEED);
     setMotor(LEFT_MOTOR, FAST_SPEED);
   }
   int encoderAverage = 0;
-    do {
-      encoderAverage = (turnEncoder->read() - otherTurnEncoder->read()) / 2;
-    } while (encoderAverage < target);
+  while (turnEncoder->read() < target){}
 
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
@@ -577,6 +578,26 @@ void redLights(){
     delay(500);
 }
 /* ---- MAIN ---- */
-void loop() {
-  doRun();
+void testMotors() {
+  int m1 = MOTORLEFT_1;
+  int m2 = MOTORLEFT_2;
+  for (int i = 0; i < 255; i = i + 10)
+  {
+    analogWrite(m1, i);
+    analogWrite(m2, i);
+    redLights();
+  }
+  
+  while(1){
+    coolLights();
+  }
+}
+
+void loop(){
+    movingTurn(90, LEFT);
+    coolLights();
+    coolLights();
+    while(!digitalRead(START_BUTTON)){}
+    movingTurn(90, RIGHT);
+
 }
