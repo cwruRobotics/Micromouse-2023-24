@@ -342,7 +342,7 @@ int moveForward(int number) {
   // Create speed variables
   // (currentDistance is the distance inside the current square.)
   double currentDistance = 0;
-  double goalDistance = SQUARE_SIZE * number;
+  double goalDistance = SQUARE_SIZE * 10 * number;
   double velocity;
 
   // Center variables
@@ -594,10 +594,12 @@ void testMotors() {
 }
 
 void loop(){
-    movingTurn(90, LEFT);
+    moveForward(1);
+    // movingTurn(90, LEFT);
     coolLights();
     coolLights();
     while(!digitalRead(START_BUTTON)){}
-    movingTurn(90, RIGHT);
+    redLights();
+    // movingTurn(90, RIGHT);
 
 }
