@@ -278,7 +278,7 @@ void movingTurn(double angle, turning_direction_t dir){
 
   
   double leftTurnRatio = (SQUARE_SIZE + wheelSeparation) / 2.0 / wheelRadius / 360 * 190 * 10.5;
-  double rightTurnRatio = (SQUARE_SIZE - wheelSeparation) / 2.0 / wheelRadius / 360 * 190 * 9;
+  double rightTurnRatio = (SQUARE_SIZE - wheelSeparation) / 2.0 / wheelRadius / 360 * 190 * 8.5;
 
   double target;
 
@@ -594,12 +594,16 @@ void testMotors() {
 }
 
 void loop(){
-    moveForward(1);
-    // movingTurn(90, LEFT);
-    coolLights();
-    coolLights();
-    while(!digitalRead(START_BUTTON)){}
-    redLights();
-    // movingTurn(90, RIGHT);
-
+  updateSensors();
+  doRun();
+    // moveForward(1);
+    // turnLeft();
+    // coolLights();
+    // coolLights();
+    // while(!digitalRead(START_BUTTON)){}
+    // moveForward(1);
+    // turnRight();
+    // coolLights();
+    // coolLights();
+    // while(!digitalRead(START_BUTTON)){}
 }
