@@ -18,9 +18,9 @@
   #define LOGGING 0
 #endif
 
-#define MAZE_SIZE 10
-#define MAZE_HEIGHT 10
-#define MAZE_WIDTH 10
+#define MAZE_SIZE 4
+#define MAZE_HEIGHT 4
+#define MAZE_WIDTH 4
 
 // Represents cardinal direction with respect to the maze
 enum cardinal_t {NORTH, EAST, SOUTH, WEST};
@@ -215,8 +215,6 @@ void updateWalls() {
       break;
   }
 }
-
-// Rotates to a particular facing while moving
 
 // Rotates to a particular facing and moves forward
 void rotateMove(uint8_t dir) {

@@ -142,16 +142,36 @@ void setMotor (motor_t m, int power) {
 }
 
 int wallLeft() {
+  if (lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX) {
+    coolLights();
+    coolLights();
+  }
+  else {
+    coolLights();
+    coolLights();
+    coolLights();
+    coolLights();
+  }
   return lidar_sensors[3].readRangeStatus() != VL6180X_ERROR_NONE || front_left > SENSOR_RANGE_MAX;
 }
 
 int wallRight() {
-  return lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;;
+  if (lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX) {
+    redLights();
+    redLights();
+  }
+  else {
+    redLights();
+    redLights();
+    redLights();
+    redLights();
+  }
+  return lidar_sensors[2].readRangeStatus() != VL6180X_ERROR_NONE || front_right > SENSOR_RANGE_MAX;
 }
 
 int wallFront(){
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
-  return ultrasonic > SENSOR_RANGE_MAX;
+  return ultrasonic > 254;
 }
 
 void updateSensors () {
@@ -172,7 +192,7 @@ void updateSensors () {
   delayMicroseconds(10);
   digitalWrite(SONIC_TRIG1, LOW);
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
-  ultrasonic_errored = ultrasonic > SENSOR_RANGE_MAX;
+  ultrasonic_errored = ultrasonic > 254;
   // And keep a running average
   if (!ultrasonic_errored) {
     ultrasonic_running_average = ultrasonic * ultrasonic_ave_factor + ultrasonic_running_average * (1 - ultrasonic_ave_factor);
@@ -594,8 +614,21 @@ void testMotors() {
 }
 
 void loop(){
-  updateSensors();
+  /*
+  digitalWrite(LED0, HIGH);
+  delay(500);
+  digitalWrite(LED0, LOW);
+  delay(500);
+  digitalWrite(LED0, HIGH);
+  delay(500);
+  digitalWrite(LED0, LOW);
+  delay(500);
+  // updateSensors();
   doRun();
+  */
+  wallLeft();
+  wallRight();
+  wallFront();
     // moveForward(1);
     // turnLeft();
     // coolLights();
