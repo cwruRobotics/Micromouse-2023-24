@@ -217,18 +217,18 @@ void updateWalls() {
   }
 }
 
-// Rotates to a particular facing and moves the designated number of spaces
-void move(uint8_t dir, float moveDist) {
+// Rotates to a particular facing and moves one space or half space
+void move(uint8_t dir, bool halfSpace) {
   if((facing == NORTH && dir == EAST) ||
      (facing == EAST && dir == SOUTH) ||
      (facing == SOUTH && dir == WEST) ||
      (facing == WEST && dir == NORTH)) {
-      if(moveDist == 1) {
+      if(!halfSpace) {
         movingTurnRight();
       }
       else {
         turnRight();
-        moveForward(moveDist);
+        moveForwardHalf();
       }
      }
   else if((facing == NORTH && dir == SOUTH) ||
@@ -237,22 +237,32 @@ void move(uint8_t dir, float moveDist) {
      (facing == WEST && dir == EAST)) {
       turnRight();
       turnRight();
-      moveForward(moveDist);
+      if(!halfSpace) {
+        moveForward();
+      }
+      else {
+        moveForwardHalf();
+      }
      }
   else if((facing == NORTH && dir == WEST) ||
      (facing == EAST && dir == NORTH) ||
      (facing == SOUTH && dir == EAST) ||
      (facing == WEST && dir == SOUTH)) {
-      if(moveDist == 1) {
+      if(!halfSpace) {
         movingTurnLeft();
       }
       else {
         turnLeft();
-        moveForward(moveDist);
+        moveForwardHalf();
       }
      }
   else {
-    moveForward(moveDist);
+    if(!halfSpace) {
+      moveForward();
+    }
+    else {
+      moveForwardHalf();
+    }
   }
   facing = dir;
 }
@@ -261,38 +271,38 @@ void move(uint8_t dir, float moveDist) {
 // Returns true if the goal has been reached, or false if not
 bool navigate() {
   uint8_t dist = mazeNodes[xPos][yPos].dist;
-  float moveDist = 1;
+  bool halfSpaces = false;
   #ifndef SIM
     if(!solving) {
-      moveDist = 0.5;
+      halfSpaces = true;
     }
   #endif
   solving = true;
   // If moving North lowers distance to goal, move North
   if(!mazeWalls[xPos][yPos + 1][1] && yPos + 1 < MAZE_HEIGHT && mazeNodes[xPos][yPos + 1].dist < dist) {
-    move(NORTH, moveDist);
+    move(NORTH, halfSpaces);
     yPos = yPos + 1;
   }
   // If moving East lowers distance to goal, move East
   else if(!mazeWalls[xPos + 1][yPos][0] && xPos + 1 < MAZE_WIDTH && mazeNodes[xPos + 1][yPos].dist < dist) {
-    move(EAST, moveDist);
+    move(EAST, halfSpaces);
     xPos = xPos + 1;
   }
   // If moving West lowers distance to goal, move West
   else if(!mazeWalls[xPos][yPos][0] && mazeNodes[xPos][yPos].x >= 1 && mazeNodes[xPos - 1][yPos].dist < dist) {
-    move(WEST, moveDist);
+    move(WEST, halfSpaces);
     xPos = xPos - 1;
   }
   // If moving South lowers distance to goal, move South
   else if(!mazeWalls[xPos][yPos][1] && mazeNodes[xPos][yPos].y >= 1 && mazeNodes[xPos][yPos - 1].dist < dist) {
-    move(SOUTH, moveDist);
+    move(SOUTH, halfSpaces);
     yPos = yPos - 1;
   }
   // If end of maze has been reached (or start of maze has been reached while backtracking), switch backtracking mode
   if(mazeNodes[xPos][yPos].dist == 0) {
     backtracking = !backtracking;
     #ifndef SIM
-      moveForward(0.5);
+      moveForwardHalf();
     #endif
     solving = false;
   }
