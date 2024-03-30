@@ -363,7 +363,7 @@ void createPath() {
 
   pathEnd = i;
 }
-
+/*
 // Moves the robot along the created path
 void moveOnPath() {
   // Current node being considered on the path
@@ -406,12 +406,14 @@ void moveOnPath() {
   // Makes the last move if the last node was straight ahead
   moveForward(numSquares + 1);
 }
-
+*/
 // Does one iteration of the floodfill algorithm
 void doRun() {
     updateWalls();
+    /*
     #ifdef SIM
       createPath();
     #endif
+    */
     navigate();
 }
