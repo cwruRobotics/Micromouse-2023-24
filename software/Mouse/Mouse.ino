@@ -394,8 +394,7 @@ void turn180(){
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
-int moveForward(double number) {
-  logln("Moving Forward");
+int moveForward(int number) {
   // Reset encoders
   leftEncoder.write(0);
   rightEncoder.write(0);
@@ -514,7 +513,8 @@ int moveForward(double number) {
     // Scale by 0.7 to compensate for over-volted motors
     int velocityLeft = (int)(-angularVelocity / 2.0 * 0.7) + velocity;
     int velocityRight = (int)(angularVelocity / 2.0 * 0.7) + velocity;
-
+    logf("velocityLeft: %f\n", velocityLeft);
+    logf("velocityRight: %f\n", velocityRight);
     setMotor(LEFT_MOTOR, velocityLeft);
     setMotor(RIGHT_MOTOR, velocityRight);
   }
@@ -585,7 +585,7 @@ void setup(void) {
   // Spin until start button is pressed
   // t is ms
   // On for 300 (0-300) off for 500 (300-800)
-  while(digitalRead(START_BUTTON)) {
+  while(!digitalRead(START_BUTTON)) {
     if (t == 0) {
       digitalWrite(YELLOW_LED, HIGH);
     }else if (t == 300) {
@@ -642,10 +642,43 @@ void redLights(){
     digitalWrite(LED3, LOW);
     delay(500);
 }
+
+void greenLights() {
+  if(digitalRead(GREEN_LED) == LOW)
+    digitalWrite(GREEN_LED, HIGH);
+  else
+    digitalWrite(GREEN_LED, LOW);
+    delay(500);
+}
 /* ---- MAIN ---- */
 void loop() {
-    movingTurnRight();
-    coolLights();
-    coolLights();
-    while(!digitalRead(START_BUTTON));
+  coolLights();
+  int m1, m2;
+    m1 = MOTORLEFT_1;
+    m2 = MOTORLEFT_2;
+    
+  // Set power
+    analogWrite(m1, 30);
+    analogWrite(m2, 255);
+
+    m1 = MOTORRIGHT_1;
+    m2 = MOTORRIGHT_2;
+    analogWrite(m1, 30);
+    analogWrite(m2, 255);    
+    // analogWrite(m1, 255);
+    // analogWrite(m2, convertPower(power));
+  // coolLights();
+  while(!(digitalRead(START_BUTTON)));
+  coolLights();
+  redLights();
+  setMotor(LEFT_MOTOR, 10000);
+  setMotor(RIGHT_MOTOR, 10000);
+  while(!(digitalRead(START_BUTTON)));
+  setMotor(LEFT_MOTOR, 0);
+  setMotor(RIGHT_MOTOR, 0);
+  redLights();
+  greenLights();
+  moveForward(1);
+  while(!(digitalRead(START_BUTTON)));
+  
 }
