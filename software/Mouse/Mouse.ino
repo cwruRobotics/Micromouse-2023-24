@@ -43,6 +43,8 @@ typedef enum motor_t {
 #define ANGLE_TOLERANCE 5
 
 const double encoderTicks = 12;
+// Old gear ratio = 380;
+// New gear Ratio = 150;
 const double gearRatio = 150;
 const double wheelSeparation = 9.5; // 9.5 cm between wheels
 const double wheelRadius = 3; // 3 cm radius
