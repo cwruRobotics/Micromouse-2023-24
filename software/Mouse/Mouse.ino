@@ -46,8 +46,8 @@ const double encoderTicks = 12;
 // Old gear ratio = 380;
 // New gear Ratio = 150;
 const double gearRatio = 150;
-const double wheelSeparation = 9.5; // 9.5 cm between wheels
-const double wheelRadius = 3; // 3 cm radius
+const double wheelSeparation = 95; // 95 mm between wheels
+const double wheelRadius = 30; // 30 mm radius
 const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio * encoderTicks; // degree to encoder tick conversion ratio
 
 // The LiDAR sensors return a running average of readings,
@@ -59,8 +59,8 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio
 // When centered, there should be 60mm in front of the ultrasonic
 #define ULTRASONIC_FRONT 60
 
-// Squares are 10in by 10in, but we work in mm. 10in = 25.4 cm
-#define SQUARE_SIZE 25.4
+// Squares are 10in by 10in, but we work in mm. 10in = 254 mm
+#define SQUARE_SIZE 254
 
 /* ---- User Variables ---- */
 
@@ -433,12 +433,12 @@ int moveForward(double number) {
 
       // Update current distance
       // 4560 ticks per revolution (380:1 gearbox * 12 ticks per rev normally)
-      // num revolutions * pi * diameter (Zach says 6 cm)
+      // num revolutions * pi * diameter
       long leftRevs = leftEncoder.read();
       long rightRevs = rightEncoder.read();
       // ((Num ticks of both wheels / 2) / num ticks per revolution) * PI * diameter 
-      // Becomes revolutions * cm per revolution
-      currentDistance = (((leftRevs + rightRevs) / 2.0) / (gearRatio * encoderTicks)) * PI * 6.0;
+      // Becomes revolutions * mm per revolution
+      currentDistance = (((leftRevs + rightRevs) / 2.0) / (gearRatio * encoderTicks)) * PI * 2 * wheelRadius;
     }
     logf("Current: %lf\n", currentDistance);
     logf("Goal: %lf\n", goalDistance);
