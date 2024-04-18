@@ -40,7 +40,7 @@ typedef enum motor_t {
 // The physical distance between the sensors
 #define LIDAR_SEPERATION 123 // 123 mm between sensors
 
-#define ANGLE_TOLERANCE 5
+#define ANGLE_TOLERANCE 15
 
 const double encoderTicks = 12;
 // Old gear ratio = 380;
@@ -54,6 +54,7 @@ const double turnRatio = (wheelSeparation / 2.0) / wheelRadius / 360 * gearRatio
 //  so when we move past a wall, the LiDAR returns a value greater than the previous value but less than an overflow.
 // (After a certain amount of time, the running average overflows the maximum and only then does the LiDAR throw a read error)
 // If the LiDAR is greater than this value, we assume that it's not sensing the wall.
+//TODO: Comment hardware range restrictions
 #define SENSOR_RANGE_MAX 110
 
 // When centered, there should be 60mm in front of the ultrasonic
@@ -157,6 +158,9 @@ int wallRight() {
 
 int wallFront(){
   logf("Front: %d\n", !(ultrasonic > SENSOR_RANGE_MAX));
+  digitalWrite(SONIC_TRIG1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(SONIC_TRIG1, LOW);
   ultrasonic = pulseIn(SONIC_ECHO1, HIGH) * ultrasonic_distance_factor;
   return !(ultrasonic > SENSOR_RANGE_MAX);
 }
@@ -296,7 +300,7 @@ void movingTurn(double angle, turning_direction_t direction) {
   if(direction == LEFT){
     turnEncoder = &rightEncoder;
     otherTurnEncoder = &leftEncoder;
-    target = target * 13.0 / 12.0; // correction
+    target = target * 11.5 / 12.0; // correction
     turnEncoder->write(0);
     otherTurnEncoder->write(0);
     setMotor(RIGHT_MOTOR, FAST_SPEED);
@@ -314,7 +318,7 @@ void movingTurn(double angle, turning_direction_t direction) {
 
   do {
     // wait
-  } while (turnEncoder->read() < target - ANGLE_TOLERANCE);
+  } while (turnEncoder->read() < target + 10);
 
   setMotor(RIGHT_MOTOR, 0);
   setMotor(LEFT_MOTOR, 0);
@@ -374,7 +378,7 @@ void turnRight(){
 // Rotate 90 degrees left
 void turnLeft(){
   logln("Turning Left");
-  turn(90.0 + getAngle() * 180.0 / PI, LEFT);
+  turn(90.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 90 degrees right while moving forward
@@ -386,7 +390,7 @@ void movingTurnRight(){
 // Rotate 90 degrees left while moving forward
 void movingTurnLeft(){
   logln("Moving Turn Left");
-  movingTurn(90.0 + getAngle() * 180.0 / PI, LEFT);
+  movingTurn(90.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 // Rotate 45 degrees right
@@ -396,11 +400,11 @@ void turnRight45(){
 
 // Rotate 45 degrees left
 void turnLeft45(){
-  turn(45.0 + getAngle() * 180.0 / PI, LEFT);
+  turn(45.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 void turn180(){
-  turn(180.0 + getAngle() * 180.0 / PI, LEFT);
+  turn(180.0 - getAngle() * 180.0 / PI, LEFT);
 }
 
 // Moves the robot forward 1 square in the direction the robot is currently facing
@@ -511,7 +515,7 @@ int moveForward(double number) {
 
     // With a distance of 254 (one square), we've chose a P of 12.25
     //  so it saturates velocity for the majority of the distance
-    velocity = p_controller(12.25, currentDistance * 10.0, goalDistance * 10.0, -64, 64);
+    velocity = p_controller(12.25, currentDistance, goalDistance, -32, 32);
 
     // With a center off set of 10mm, that's a velocity of 5
     centerVelocity = p_controller(0.5, centerOffset, 0, -50, 50);
@@ -595,7 +599,7 @@ void setup(void) {
   // Spin until start button is pressed
   // t is ms
   // On for 300 (0-300) off for 500 (300-800)
-  while(digitalRead(START_BUTTON)) {
+  while(!digitalRead(START_BUTTON)) {
     if (t == 0) {
       digitalWrite(YELLOW_LED, HIGH);
     }else if (t == 300) {
@@ -634,7 +638,7 @@ void setup(void) {
   digitalWrite(LED2, LOW);
 
   initialize();
-  
+  updateSensors();
 }
 
 void coolLights(){
@@ -654,9 +658,10 @@ void redLights(){
 }
 /* ---- MAIN ---- */
 void loop() {
-    //movingTurnRight();
-    movingTurnLeft();
-    coolLights();
-    coolLights();
+  logln("Running");
+  updateSensors();
+  doRun();
+  coolLights();
+  coolLights();
     while(!digitalRead(START_BUTTON));
-}
+    }
